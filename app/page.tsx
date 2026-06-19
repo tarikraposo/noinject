@@ -1,6 +1,9 @@
+import { auditDocument } from "@/lib/analyzer";
+import { AuditReport } from "@/lib/auditor-types";
+ 
 import { useCallback, useState } from "react";
 
-type Status = "idle" | "analyzing" | "error";
+type Status = "idle" | "analyzing" | "done" | "error";
 
 const SAMPLE = `Resumo do relatório trimestral de vendas.
 
@@ -16,9 +19,25 @@ Obrigado pela colaboração e bom trabalho a todos da equipe.`;
 export default function Page() {
 
   const [status, setStatus] = useState<Status>("idle");
-  const [report, setRepost] = useState<null>(null);
+  const [report, setReport] = useState<AuditReport | null>(null);
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState("");
+
+  const runAudit = useCallback(async (file:File) => {
+    setFileName(file.name);
+    setStatus("analyzing");
+    setError("");
+    try {
+      const result = await auditDocument(file);
+      setReport(result)
+      setStatus("done");
+    } catch (err) {
+      setError("Não foi possível ler o arquivo. Tente um TXT, MD, PDF ou DOCX válido.");
+      setStatus("error");
+    }
+
+  }, []);
+
 
 
   return <div></div>;
