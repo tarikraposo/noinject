@@ -1,30 +1,43 @@
-export type Severity = "critical" | "high" | "medium" | "low";
+export type Severity = "critical" | "high" | "medium" | "low"
 
 export interface Finding {
-    id: string;
-    category: string;
-    title: string;
-    description: string;
-    severity: Severity;
-    snippet: string;
-    start: number;
-    end: number;
-    confidence: number;
-    recommendation: string;
+  id: string
+  /** Categoria técnica do achado */
+  category: string
+  /** Título legível */
+  title: string
+  /** Explicação do porquê é suspeito */
+  description: string
+  severity: Severity
+  /** Trecho exato detectado no documento */
+  snippet: string
+  /** Posição inicial do trecho no texto */
+  start: number
+  /** Posição final do trecho no texto */
+  end: number
+  /** Confiança da detecção (0-100) */
+  confidence: number
+  /** Recomendação de mitigação */
+  recommendation: string
 }
 
 export interface AuditReport {
-    fileName: string;
-    fileType: string;
-    fileSize: number;
-    content: string;
-    riskScore: number;
-    overallSeverity: Severity | "safe";
-    findings: Finding[];
-    counts: Record<Severity, number>;
-    durationMs: number;
-    analyzedAt: string;
-    wordCount: number;
+  fileName: string
+  fileType: string
+  fileSize: number
+  /** Conteúdo textual extraído */
+  content: string
+  /** Score de risco 0-100 */
+  riskScore: number
+  /** Severidade geral derivada do score */
+  overallSeverity: Severity | "safe"
+  findings: Finding[]
+  /** Contagem por severidade */
+  counts: Record<Severity, number>
+  /** Tempo de análise simulado (ms) */
+  durationMs: number
+  analyzedAt: string
+  wordCount: number
 }
 
 export const SEVERITY_META: Record<
