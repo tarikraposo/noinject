@@ -1,3 +1,5 @@
+"use client";
+
 import { AnalyzingState } from "@/components/auditor/analyzing-state";
 import { AuditResults } from "@/components/auditor/audit-result";
 import { UploadZone } from "@/components/auditor/upload-zone";
@@ -103,7 +105,7 @@ export default function Page() {
           </div>
         )}
 
-        {status === "analyzing" && (<AnalyzingState fileName={fileName} />)}
+        {status === "analyzing" && <AnalyzingState fileName={fileName} />}
 
         {status === "error" && (
           <div className="flex flex-col items-center gap-4 py-12 text-center">
