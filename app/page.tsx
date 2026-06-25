@@ -1,6 +1,7 @@
 import { AnalyzingState } from "@/components/auditor/analyzing-state";
 import { AuditResults } from "@/components/auditor/audit-result";
 import { UploadZone } from "@/components/auditor/upload-zone";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { auditDocument } from "@/lib/analyzer";
 import { AuditReport } from "@/lib/auditor-types";
