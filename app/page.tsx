@@ -96,6 +96,24 @@ export default function Page() {
             <UploadZone onFile={runAudit} />
           </div>
         )}
+
+        {status === "analyzing" && (<AnalyzingState fileName={fileName} />)}
+
+        {status === "error" && (
+          <div className="flex flex-col items-center gap-4 py-12 text-center">
+            <div className="flex size-12 items-center justify-center rounded-full bg-destructive/15 text-destructive">
+              <AlertTriangle className="size-6" aria-hidden />
+            </div>
+            <p className="text-sm text-muted-foreground">{error}</p>
+            <Button variant="outline" onClick={reset}>
+              Tentar novamente
+            </Button>
+          </div>
+        )}
+
+        {status === "done" && report && (
+          <AuditResults report={report} onReset={reset} />
+        )}
       </main>
     </div>
   );
