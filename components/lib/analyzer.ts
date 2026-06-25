@@ -1,4 +1,4 @@
-import type { AuditReport, Finding, Severity } from "./auditor-types"
+import type { AuditReport, Finding, Severity } from "../lib/auditor-types"
 
 interface Rule {
   category: string
