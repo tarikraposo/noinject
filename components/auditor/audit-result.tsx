@@ -10,15 +10,13 @@ import {
   ScanText,
 } from "lucide-react"
 import type { AuditReport, Finding } from "@/lib/auditor-types"
-import { exportReportToPdf } from "@/lib/export-report"
-import { Button } from "@/components/ui/button"
+import {Button} from "@/components/ui/button"
+
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { RiskGauge } from "./risk-gauge"
-import { StatCards } from "./stat-cards"
+import { exportReportToPdf } from "../lib/export-report"
 import { FindingsList } from "./findings-list"
-import { DocumentViewer } from "./document-viewer"
-import { SeverityBadge } from "./severity-badge"
+
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`

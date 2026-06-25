@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react"
 import { Loader2, ShieldCheck } from "lucide-react"
+import { Card } from "../ui/card"
+import { Progress } from "../ui/progress"
+
 
 
 const STEPS = [
