@@ -79,6 +79,24 @@ export default function Page() {
           </div>
         </div>
       </header>
+
+      <main>
+        {status === "idle" && (
+          <div className="flex flex-col gap-6">
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-balance">
+                Audite documentos antes de enviá-los para um LLM.
+              </h2>
+              <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                Faça upload de um arquivo para identificar tentativas de prompt
+                injection, calcular o score de risco e gerar um relatório de
+                auditoria exportável.
+              </p>
+            </div>
+            <Uploadzone onFileUpload={runAudit} />
+          </div>
+        )}
+      </main>
     </div>
   );
 }
