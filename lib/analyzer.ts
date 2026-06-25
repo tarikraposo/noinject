@@ -1,15 +1,15 @@
-import type { AuditReport, Finding, Severity } from "../lib/auditor-types"
-import { extractPdfText } from "./pdf-extract"
+import type { AuditReport, Finding, Severity } from "../lib/auditor-types";
+import { extractPdfText } from "./pdf-extract";
 
 interface Rule {
-  category: string
-  title: string
-  description: string
-  severity: Severity
-  weight: number
-  confidence: number
-  recommendation: string
-  pattern: RegExp
+  category: string;
+  title: string;
+  description: string;
+  severity: Severity;
+  weight: number;
+  confidence: number;
+  recommendation: string;
+  pattern: RegExp;
 }
 
 /**
@@ -29,7 +29,7 @@ const RULES: Rule[] = [
     recommendation:
       "Isole o conteúdo do usuário do prompt do sistema e rejeite instruções que tentem redefinir o comportamento do modelo.",
     pattern:
-      /\b(ignore|ignorar|desconsidere|esque[çc]a|disregard|forget)\b[^.\n]{0,40}\b(previous|anterior(es)?|above|acima|todas as|all)\b[^.\n]{0,40}\b(instru[çc][õo]es|instructions|prompts?|regras|rules)\b/gi,
+      /\b(ignore|ignorar|desconsidere|forget|disregard)\b[\s\S]{0,120}\b(instrucoes?|instructions?|prompts?|regras?|rules?)\b/gi,
   },
   {
     category: "role-hijack",
@@ -55,7 +55,7 @@ const RULES: Rule[] = [
     recommendation:
       "Nunca exponha o prompt do sistema. Trate pedidos de revelação como hostis e registre o evento.",
     pattern:
-      /\b(reveal|mostr[ae]|repeat|repita|print|exiba|show me)\b[^.\n]{0,40}\b(system prompt|prompt do sistema|instru[çc][õo]es (do sistema|iniciais|ocultas)|hidden (prompt|instructions)|initial instructions)\b/gi,
+      /\b(reveal|revele|mostrar|mostre|mostra|repeat|repita|print|exiba|show me)\b[\s\S]{0,120}\b(system prompt|prompt do sistema|hidden prompt|initial instructions)\b/gi,
   },
   {
     category: "data-exfiltration",
@@ -122,19 +122,21 @@ const RULES: Rule[] = [
     pattern:
       /\b(bypass|contorne|sem filtro|no filter|sem censura|uncensored|sem limites|no restrictions|ignore (safety|seguran[çc]a)|hypothetically|hipoteticamente falando)\b/gi,
   },
-]
+];
 
 function severityToScoreContribution(rule: Rule, hits: number): number {
   // Cada ocorrência adicional contribui com retorno decrescente.
-  return rule.weight * (1 + Math.log2(hits + 1) - 1)
+  return rule.weight * (1 + Math.log2(hits + 1) - 1);
 }
 
-function overallSeverityFromScore(score: number): AuditReport["overallSeverity"] {
-  if (score >= 75) return "critical"
-  if (score >= 50) return "high"
-  if (score >= 25) return "medium"
-  if (score > 0) return "low"
-  return "safe"
+function overallSeverityFromScore(
+  score: number,
+): AuditReport["overallSeverity"] {
+  if (score >= 75) return "critical";
+  if (score >= 50) return "high";
+  if (score >= 25) return "medium";
+  if (score > 0) return "low";
+  return "safe";
 }
 
 /**
@@ -142,23 +144,23 @@ function overallSeverityFromScore(score: number): AuditReport["overallSeverity"]
  * Simula a latência de uma chamada de API de backend.
  */
 export function analyzeText(content: string): {
-  findings: Finding[]
-  riskScore: number
-  overallSeverity: AuditReport["overallSeverity"]
-  counts: Record<Severity, number>
+  findings: Finding[];
+  riskScore: number;
+  overallSeverity: AuditReport["overallSeverity"];
+  counts: Record<Severity, number>;
 } {
-  const findings: Finding[] = []
-  let rawScore = 0
-  let idx = 0
+  const findings: Finding[] = [];
+  let rawScore = 0;
+  let idx = 0;
 
   for (const rule of RULES) {
-    const regex = new RegExp(rule.pattern.source, rule.pattern.flags)
-    let match: RegExpExecArray | null
-    let hits = 0
+    const regex = new RegExp(rule.pattern.source, rule.pattern.flags);
+    let match: RegExpExecArray | null;
+    let hits = 0;
     while ((match = regex.exec(content)) !== null) {
-      hits++
-      const start = match.index
-      const end = match.index + match[0].length
+      hits++;
+      const start = match.index;
+      const end = match.index + match[0].length;
       findings.push({
         id: `f-${idx++}`,
         category: rule.category,
@@ -170,39 +172,46 @@ export function analyzeText(content: string): {
         end,
         confidence: rule.confidence,
         recommendation: rule.recommendation,
-      })
-      if (match[0].length === 0) regex.lastIndex++
-      if (hits > 25) break
+      });
+      if (match[0].length === 0) regex.lastIndex++;
+      if (hits > 25) break;
     }
     if (hits > 0) {
-      rawScore += severityToScoreContribution(rule, hits)
+      rawScore += severityToScoreContribution(rule, hits);
     }
   }
 
-  const riskScore = Math.min(100, Math.round(rawScore))
-  const counts: Record<Severity, number> = { critical: 0, high: 0, medium: 0, low: 0 }
-  for (const f of findings) counts[f.severity]++
+  const riskScore = Math.min(100, Math.round(rawScore));
+  const counts: Record<Severity, number> = {
+    critical: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+  };
+  for (const f of findings) counts[f.severity]++;
 
   // Ordena por severidade e depois por posição
-  const order: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 }
-  findings.sort((a, b) => order[a.severity] - order[b.severity] || a.start - b.start)
+  const order: Record<Severity, number> = {
+    critical: 0,
+    high: 1,
+    medium: 2,
+    low: 3,
+  };
+  findings.sort(
+    (a, b) => order[a.severity] - order[b.severity] || a.start - b.start,
+  );
 
   return {
     findings,
     riskScore,
     overallSeverity: overallSeverityFromScore(riskScore),
     counts,
-  }
+  };
 }
 
 /** Lê o conteúdo textual de um arquivo. */
-export async function readFileContent(
-  file: File,
-): Promise<string> {
-  const extension = file.name
-    .split(".")
-    .pop()
-    ?.toLowerCase();
+export async function readFileContent(file: File): Promise<string> {
+  const extension = file.name.split(".").pop()?.toLowerCase();
 
   if (extension === "pdf") {
     return extractPdfText(file);
@@ -211,11 +220,9 @@ export async function readFileContent(
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
-    reader.onload = () =>
-      resolve(String(reader.result ?? ""));
+    reader.onload = () => resolve(String(reader.result ?? ""));
 
-    reader.onerror = () =>
-      reject(reader.error);
+    reader.onerror = () => reject(reader.error);
 
     reader.readAsText(file);
   });
@@ -223,15 +230,27 @@ export async function readFileContent(
 
 /** Executa a auditoria completa simulando o backend. */
 export async function auditDocument(file: File): Promise<AuditReport> {
-  const startedAt = performance.now()
-  const content = await readFileContent(file)
-  console.log(content)
-  // Latência simulada de processamento no backend
-  await new Promise((r) => setTimeout(r, 1400 + Math.random() * 900))
+  const startedAt = performance.now();
+  const content = await readFileContent(file);
+  const normalizedContent = content
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  console.log(normalizedContent);
 
-  const { findings, riskScore, overallSeverity, counts } = analyzeText(content)
-  const durationMs = Math.round(performance.now() - startedAt)
-  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0
+  for (const rule of RULES) {
+    console.log(
+      rule.category,
+      new RegExp(rule.pattern.source, rule.pattern.flags).test(content),
+    );
+  }
+  // Latência simulada de processamento no backend
+  await new Promise((r) => setTimeout(r, 1400 + Math.random() * 900));
+  const { findings, riskScore, overallSeverity, counts } =
+    analyzeText(normalizedContent);
+  const durationMs = Math.round(performance.now() - startedAt);
+  const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
 
   return {
     fileName: file.name,
@@ -245,5 +264,5 @@ export async function auditDocument(file: File): Promise<AuditReport> {
     durationMs,
     analyzedAt: new Date().toISOString(),
     wordCount,
-  }
+  };
 }
