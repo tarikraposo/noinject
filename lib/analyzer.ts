@@ -1,4 +1,5 @@
 import type { AuditReport, Finding, Severity } from "../lib/auditor-types"
+import { extractPdfText } from "./pdf-extract"
 
 interface Rule {
   category: string
@@ -195,19 +196,36 @@ export function analyzeText(content: string): {
 }
 
 /** Lê o conteúdo textual de um arquivo. */
-export function readFileContent(file: File): Promise<string> {
+export async function readFileContent(
+  file: File,
+): Promise<string> {
+  const extension = file.name
+    .split(".")
+    .pop()
+    ?.toLowerCase();
+
+  if (extension === "pdf") {
+    return extractPdfText(file);
+  }
+
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result ?? ""))
-    reader.onerror = () => reject(reader.error)
-    reader.readAsText(file)
-  })
+    const reader = new FileReader();
+
+    reader.onload = () =>
+      resolve(String(reader.result ?? ""));
+
+    reader.onerror = () =>
+      reject(reader.error);
+
+    reader.readAsText(file);
+  });
 }
 
 /** Executa a auditoria completa simulando o backend. */
 export async function auditDocument(file: File): Promise<AuditReport> {
   const startedAt = performance.now()
   const content = await readFileContent(file)
+  console.log(content)
   // Latência simulada de processamento no backend
   await new Promise((r) => setTimeout(r, 1400 + Math.random() * 900))
 
