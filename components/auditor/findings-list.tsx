@@ -3,9 +3,9 @@
 import { useState } from "react"
 import { ChevronDown, Lightbulb, ShieldCheck } from "lucide-react"
 import type { Finding } from "@/lib/auditor-types"
-import { SeverityBadge } from "./severity-badge"
 import { Card } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
+import { cn } from "../lib/utils"
+import { SeverityBadge } from "./severity-badge"
 
 export function FindingsList({
   findings,

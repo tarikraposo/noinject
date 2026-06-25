@@ -1,5 +1,5 @@
 import { SEVERITY_META, type Severity } from "@/lib/auditor-types"
-import { cn } from "@/lib/utils"
+import { cn } from "../lib/utils"
 
 export function SeverityBadge({
   severity,

@@ -1,6 +1,6 @@
 import { SEVERITY_META, type AuditReport, type Severity } from "@/lib/auditor-types"
 import { Card } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
+import { cn } from "../lib/utils"
 
 const SEVERITIES: Severity[] = ["critical", "high", "medium", "low"]
 
