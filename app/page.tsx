@@ -53,12 +53,11 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur">
+      <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3.5">
-          <div className="flex items-center-gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary">
-                            <ShieldHalf className="size-5" aria-hidden />
-
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <ShieldHalf className="size-5" aria-hidden />
             </div>
             <div>
               <h1 className="text-sm font-semibold leading-tight">
@@ -79,7 +78,6 @@ export default function Page() {
             <ThemeToggle />
           </div>
         </div>
-        
       </header>
     </div>
   );
