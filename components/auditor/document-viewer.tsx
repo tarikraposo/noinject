@@ -1,145 +1,75 @@
 "use client"
 
-import { useState } from "react"
-import {
-  Clock,
-  Download,
-  FileText,
-  ListChecks,
-  RotateCcw,
-  ScanText,
-} from "lucide-react"
-import type { AuditReport, Finding } from "@/lib/auditor-types"
-import { exportReportToPdf } from "@/lib/export-report"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { RiskGauge } from "./risk-gauge"
-import { StatCards } from "./stat-cards"
-import { FindingsList } from "./findings-list"
-import { DocumentViewer } from "./document-viewer"
-import { SeverityBadge } from "./severity-badge"
+import { useMemo } from "react"
+import { SEVERITY_META, type Finding, type Severity } from "@/lib/auditor-types"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { cn } from "../lib/utils"
 
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`
-  return `${(bytes / 1024).toFixed(1)} KB`
+interface Segment {
+  text: string
+  finding?: Finding
 }
 
-export function AuditResults({
-  report,
-  onReset,
-}: {
-  report: AuditReport
-  onReset: () => void
-}) {
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const [tab, setTab] = useState("findings")
+const order: Record<Severity, number> = { critical: 0, high: 1, medium: 2, low: 3 }
 
-  const handleSelect = (f: Finding) => {
-    setActiveId(f.id)
-    setTab("document")
-    requestAnimationFrame(() => {
-      document
-        .getElementById(`hl-${f.id}`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" })
-    })
-  }
+export function DocumentViewer({
+  content,
+  findings,
+  activeId,
+}: {
+  content: string
+  findings: Finding[]
+  activeId?: string | null
+}) {
+  const segments = useMemo<Segment[]>(() => {
+    if (!content) return [{ text: "" }]
+    // Ordena por posição; em sobreposição, mantém o de maior severidade.
+    const sorted = [...findings].sort(
+      (a, b) => a.start - b.start || order[a.severity] - order[b.severity],
+    )
+    const result: Segment[] = []
+    let cursor = 0
+    for (const f of sorted) {
+      if (f.start < cursor) continue // pula sobreposições
+      if (f.start > cursor) {
+        result.push({ text: content.slice(cursor, f.start) })
+      }
+      result.push({ text: content.slice(f.start, f.end), finding: f })
+      cursor = f.end
+    }
+    if (cursor < content.length) {
+      result.push({ text: content.slice(cursor) })
+    }
+    return result
+  }, [content, findings])
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Barra do arquivo */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-secondary text-muted-foreground">
-            <FileText className="size-5" aria-hidden />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{report.fileName}</p>
-            <p className="text-xs text-muted-foreground">
-              {report.fileType} · {formatBytes(report.fileSize)} ·{" "}
-              {report.wordCount} palavras
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onReset}>
-            <RotateCcw className="size-4" aria-hidden />
-            Nova auditoria
-          </Button>
-          <Button size="sm" onClick={() => exportReportToPdf(report)}>
-            <Download className="size-4" aria-hidden />
-            Exportar PDF
-          </Button>
-        </div>
-      </div>
-
-      {/* Dashboard: score + estatísticas */}
-      <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
-        <Card className="items-center justify-center gap-4 p-6">
-          <RiskGauge score={report.riskScore} severity={report.overallSeverity} />
-          <div className="flex flex-col items-center gap-2">
-            <SeverityBadge severity={report.overallSeverity} />
-            <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Clock className="size-3.5" aria-hidden />
-              Analisado em {report.durationMs} ms
-            </p>
-          </div>
-        </Card>
-
-        <div className="flex flex-col gap-4">
-          <StatCards report={report} />
-          <Card className="flex-1 flex-row items-center gap-3 p-4">
-            <ScanText className="size-5 shrink-0 text-primary" aria-hidden />
-            <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
-              {report.findings.length > 0 ? (
-                <>
-                  Foram detectados{" "}
-                  <span className="font-medium text-foreground">
-                    {report.findings.length} trecho(s) suspeito(s)
-                  </span>{" "}
-                  que podem indicar tentativas de prompt injection. Revise os
-                  achados abaixo antes de processar este documento com um LLM.
-                </>
-              ) : (
-                <>
-                  Nenhum padrão de prompt injection foi identificado. Ainda
-                  assim, mantenha as boas práticas de isolamento de contexto.
-                </>
+    <ScrollArea className="h-[460px] rounded-lg border border-border bg-secondary/30">
+      <pre className="whitespace-pre-wrap break-words p-4 font-mono text-sm leading-relaxed text-foreground">
+        {segments.map((seg, i) => {
+          if (!seg.finding) return <span key={i}>{seg.text}</span>
+          const meta = SEVERITY_META[seg.finding.severity]
+          const isActive = seg.finding.id === activeId
+          return (
+            <mark
+              key={i}
+              id={`hl-${seg.finding.id}`}
+              title={seg.finding.title}
+              className={cn(
+                "rounded px-0.5 text-foreground underline decoration-dotted underline-offset-2 transition-shadow",
+                meta.bgClass,
+                isActive && "ring-2 ring-offset-2 ring-offset-background",
               )}
-            </p>
-          </Card>
-        </div>
-      </div>
-
-      {/* Abas: findings e documento */}
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
-          <TabsTrigger value="findings">
-            <ListChecks className="size-4" aria-hidden />
-            Achados ({report.findings.length})
-          </TabsTrigger>
-          <TabsTrigger value="document">
-            <ScanText className="size-4" aria-hidden />
-            Documento
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="findings" className="mt-4">
-          <FindingsList
-            findings={report.findings}
-            activeId={activeId}
-            onSelect={handleSelect}
-          />
-        </TabsContent>
-
-        <TabsContent value="document" className="mt-4">
-          <DocumentViewer
-            content={report.content}
-            findings={report.findings}
-            activeId={activeId}
-          />
-        </TabsContent>
-      </Tabs>
-    </div>
+              style={{
+                boxShadow: `inset 0 -2px 0 ${meta.token}`,
+                ...(isActive ? { ["--tw-ring-color" as string]: meta.token } : {}),
+              }}
+            >
+              {seg.text}
+            </mark>
+          )
+        })}
+      </pre>
+    </ScrollArea>
   )
 }
