@@ -16,6 +16,10 @@ import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { exportReportToPdf } from "../lib/export-report"
 import { FindingsList } from "./findings-list"
+import { DocumentViewer } from "./document-viewer"
+import { RiskGauge } from "./risk-gauge"
+import { SeverityBadge } from "./severity-badge"
+import { StatCards } from "./stat-cards"
 
 
 function formatBytes(bytes: number) {
