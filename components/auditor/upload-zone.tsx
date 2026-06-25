@@ -1,41 +1,41 @@
-"use client"
+"use client";
 
-import { useCallback, useRef, useState } from "react"
-import { FileText, ShieldAlert, UploadCloud } from "lucide-react"
-import { cn } from "../lib/utils"
-import { Button } from "@/components/ui/button"
+import { useCallback, useRef, useState } from "react";
+import { FileText, ShieldAlert, UploadCloud } from "lucide-react";
+import { cn } from "../../lib/utils";
+import { Button } from "@/components/ui/button";
 
-const ACCEPTED = [".pdf", ".docx", ".txt", ".md"]
+const ACCEPTED = [".pdf", ".docx", ".txt", ".md"];
 
 export function UploadZone({
   onFile,
   disabled,
 }: {
-  onFile: (file: File) => void
-  disabled?: boolean
+  onFile: (file: File) => void;
+  disabled?: boolean;
 }) {
-  const [dragging, setDragging] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [dragging, setDragging] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = useCallback(
     (files: FileList | null) => {
-      if (!files || files.length === 0) return
-      onFile(files[0])
+      if (!files || files.length === 0) return;
+      onFile(files[0]);
     },
     [onFile],
-  )
+  );
 
   return (
     <div
       onDragOver={(e) => {
-        e.preventDefault()
-        if (!disabled) setDragging(true)
+        e.preventDefault();
+        if (!disabled) setDragging(true);
       }}
       onDragLeave={() => setDragging(false)}
       onDrop={(e) => {
-        e.preventDefault()
-        setDragging(false)
-        if (!disabled) handleFiles(e.dataTransfer.files)
+        e.preventDefault();
+        setDragging(false);
+        if (!disabled) handleFiles(e.dataTransfer.files);
       }}
       className={cn(
         "relative flex flex-col items-center justify-center rounded-xl border border-dashed bg-card/50 px-6 py-14 text-center transition-colors",
@@ -86,5 +86,5 @@ export function UploadZone({
         demonstração.
       </p>
     </div>
-  )
+  );
 }

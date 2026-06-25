@@ -1,14 +1,14 @@
-import { SEVERITY_META, type Severity } from "@/lib/auditor-types"
-import { cn } from "../lib/utils"
+import { SEVERITY_META, type Severity } from "@/lib/auditor-types";
+import { cn } from "../../lib/utils";
 
 export function SeverityBadge({
   severity,
   className,
 }: {
-  severity: Severity | "safe"
-  className?: string
+  severity: Severity | "safe";
+  className?: string;
 }) {
-  const meta = SEVERITY_META[severity]
+  const meta = SEVERITY_META[severity];
   return (
     <span
       className={cn(
@@ -26,5 +26,5 @@ export function SeverityBadge({
       />
       {meta.label}
     </span>
-  )
+  );
 }

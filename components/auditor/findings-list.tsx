@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ChevronDown, Lightbulb, ShieldCheck } from "lucide-react"
-import type { Finding } from "@/lib/auditor-types"
-import { Card } from "@/components/ui/card"
-import { cn } from "../lib/utils"
-import { SeverityBadge } from "./severity-badge"
+import { useState } from "react";
+import { ChevronDown, Lightbulb, ShieldCheck } from "lucide-react";
+import type { Finding } from "@/lib/auditor-types";
+import { Card } from "@/components/ui/card";
+import { cn } from "../../lib/utils";
+import { SeverityBadge } from "./severity-badge";
 
 export function FindingsList({
   findings,
   activeId,
   onSelect,
 }: {
-  findings: Finding[]
-  activeId?: string | null
-  onSelect?: (finding: Finding) => void
+  findings: Finding[];
+  activeId?: string | null;
+  onSelect?: (finding: Finding) => void;
 }) {
   if (findings.length === 0) {
     return (
@@ -28,7 +28,7 @@ export function FindingsList({
           injection.
         </p>
       </Card>
-    )
+    );
   }
 
   return (
@@ -42,7 +42,7 @@ export function FindingsList({
         />
       ))}
     </ul>
-  )
+  );
 }
 
 function FindingItem({
@@ -50,11 +50,11 @@ function FindingItem({
   active,
   onSelect,
 }: {
-  finding: Finding
-  active?: boolean
-  onSelect?: (finding: Finding) => void
+  finding: Finding;
+  active?: boolean;
+  onSelect?: (finding: Finding) => void;
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   return (
     <li>
@@ -67,8 +67,8 @@ function FindingItem({
         <button
           type="button"
           onClick={() => {
-            setOpen((o) => !o)
-            onSelect?.(finding)
+            setOpen((o) => !o);
+            onSelect?.(finding);
           }}
           className="flex w-full items-start gap-3 p-4 text-left"
         >
@@ -106,7 +106,10 @@ function FindingItem({
               {finding.description}
             </p>
             <div className="mt-3 flex items-start gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
-              <Lightbulb className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+              <Lightbulb
+                className="mt-0.5 size-4 shrink-0 text-primary"
+                aria-hidden
+              />
               <div>
                 <p className="text-xs font-medium text-primary">Recomendação</p>
                 <p className="mt-0.5 text-sm leading-relaxed text-muted-foreground">
@@ -118,5 +121,5 @@ function FindingItem({
         )}
       </Card>
     </li>
-  )
+  );
 }

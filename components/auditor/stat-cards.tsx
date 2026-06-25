@@ -1,15 +1,19 @@
-import { SEVERITY_META, type AuditReport, type Severity } from "@/lib/auditor-types"
-import { Card } from "@/components/ui/card"
-import { cn } from "../lib/utils"
+import {
+  SEVERITY_META,
+  type AuditReport,
+  type Severity,
+} from "@/lib/auditor-types";
+import { Card } from "@/components/ui/card";
+import { cn } from "../../lib/utils";
 
-const SEVERITIES: Severity[] = ["critical", "high", "medium", "low"]
+const SEVERITIES: Severity[] = ["critical", "high", "medium", "low"];
 
 export function StatCards({ report }: { report: AuditReport }) {
   return (
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {SEVERITIES.map((sev) => {
-        const meta = SEVERITY_META[sev]
-        const count = report.counts[sev]
+        const meta = SEVERITY_META[sev];
+        const count = report.counts[sev];
         return (
           <Card
             key={sev}
@@ -19,7 +23,9 @@ export function StatCards({ report }: { report: AuditReport }) {
             )}
           >
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{meta.label}</span>
+              <span className="text-sm text-muted-foreground">
+                {meta.label}
+              </span>
               <span
                 className="size-2.5 rounded-full"
                 style={{ backgroundColor: meta.token }}
@@ -38,8 +44,8 @@ export function StatCards({ report }: { report: AuditReport }) {
               {count === 1 ? "achado" : "achados"}
             </span>
           </Card>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

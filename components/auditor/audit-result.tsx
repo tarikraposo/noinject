@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Clock,
   Download,
@@ -8,44 +8,43 @@ import {
   ListChecks,
   RotateCcw,
   ScanText,
-} from "lucide-react"
-import type { AuditReport, Finding } from "@/lib/auditor-types"
-import {Button} from "@/components/ui/button"
+} from "lucide-react";
+import type { AuditReport, Finding } from "@/lib/auditor-types";
+import { Button } from "@/components/ui/button";
 
-import { Card } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { exportReportToPdf } from "../lib/export-report"
-import { FindingsList } from "./findings-list"
-import { DocumentViewer } from "./document-viewer"
-import { RiskGauge } from "./risk-gauge"
-import { SeverityBadge } from "./severity-badge"
-import { StatCards } from "./stat-cards"
-
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { exportReportToPdf } from "../../lib/export-report";
+import { FindingsList } from "./findings-list";
+import { DocumentViewer } from "./document-viewer";
+import { RiskGauge } from "./risk-gauge";
+import { SeverityBadge } from "./severity-badge";
+import { StatCards } from "./stat-cards";
 
 function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`
-  return `${(bytes / 1024).toFixed(1)} KB`
+  if (bytes < 1024) return `${bytes} B`;
+  return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
 export function AuditResults({
   report,
   onReset,
 }: {
-  report: AuditReport
-  onReset: () => void
+  report: AuditReport;
+  onReset: () => void;
 }) {
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const [tab, setTab] = useState("findings")
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [tab, setTab] = useState("findings");
 
   const handleSelect = (f: Finding) => {
-    setActiveId(f.id)
-    setTab("document")
+    setActiveId(f.id);
+    setTab("document");
     requestAnimationFrame(() => {
       document
         .getElementById(`hl-${f.id}`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" })
-    })
-  }
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -78,7 +77,10 @@ export function AuditResults({
       {/* Dashboard: score + estatísticas */}
       <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
         <Card className="items-center justify-center gap-4 p-6">
-          <RiskGauge score={report.riskScore} severity={report.overallSeverity} />
+          <RiskGauge
+            score={report.riskScore}
+            severity={report.overallSeverity}
+          />
           <div className="flex flex-col items-center gap-2">
             <SeverityBadge severity={report.overallSeverity} />
             <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -143,5 +145,5 @@ export function AuditResults({
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

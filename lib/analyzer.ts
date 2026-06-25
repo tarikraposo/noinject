@@ -1,4 +1,4 @@
-import type { AuditReport, Finding, Severity } from "./auditor-types"
+import type { AuditReport, Finding, Severity } from "../lib/auditor-types"
 
 interface Rule {
   category: string
@@ -16,7 +16,6 @@ interface Rule {
  * Em produção, estas regras viriam do backend; aqui rodam no cliente
  * para demonstrar o fluxo completo da auditoria.
  */
-
 const RULES: Rule[] = [
   {
     category: "instruction-override",
@@ -141,7 +140,6 @@ function overallSeverityFromScore(score: number): AuditReport["overallSeverity"]
  * Analisa o texto e retorna o relatório de auditoria.
  * Simula a latência de uma chamada de API de backend.
  */
-
 export function analyzeText(content: string): {
   findings: Finding[]
   riskScore: number
