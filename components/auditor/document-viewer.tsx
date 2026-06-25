@@ -45,7 +45,7 @@ export function DocumentViewer({
 
   return (
     <ScrollArea className="h-[460px] rounded-lg border border-border bg-secondary/30">
-      <pre className="whitespace-pre-wrap break-words p-4 font-mono text-sm leading-relaxed text-foreground">
+      <pre className="whitespace-pre-wrap wrap-break-word p-4 font-mono text-sm leading-relaxed text-foreground">
         {segments.map((seg, i) => {
           if (!seg.finding) return <span key={i}>{seg.text}</span>
           const meta = SEVERITY_META[seg.finding.severity]
